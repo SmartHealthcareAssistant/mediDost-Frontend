@@ -366,7 +366,7 @@ console.log("Sending slot:", {
     const { order } = res.data;
 
     const options = {
-      key: "rzp_test_SeiM3oMHBRVczi",
+key: import.meta.env.VITE_RAZORPAY_KEY,
       amount: order.amount,
       currency: "INR",
       name: "MediDost",
