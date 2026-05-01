@@ -1,4 +1,4 @@
-import logo from "../../assets/logo/Sha-Logo.png";
+import logo from "../../assets/logo/Sha-logo.png";
 
 export default function ShaLogo() {
   return (
