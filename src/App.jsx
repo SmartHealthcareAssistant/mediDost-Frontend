@@ -18,7 +18,16 @@ import ChatBot from "./Chatbot/ChatBot";
 function App() {
   const location = useLocation();
 
-  // 🔥 Routes where Navbar & Footer should be hidden
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetch("https://smart-healthcare-app-e0cx.onrender.com/test")
+        .then(() => console.log("✅ Ping success"))
+        .catch(() => console.log("❌ Ping failed"));
+    }, 600000); // 10 minutes
+
+    return () => clearInterval(interval);
+  }, []);
+  
   const hideLayoutRoutes = ["/doctor", "/patient", "/pharmacy"];
 
   const shouldHideLayout = hideLayoutRoutes.some((path) =>
