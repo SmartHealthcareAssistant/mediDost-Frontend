@@ -13,7 +13,7 @@ export default function Prescriptions({ patients = [] }) {
   useEffect(() => {
     const fetchPrescriptions = async () => {
       try {
-        const res = await fetch("https://smart-healthcare-app-ghwj.onrender.com/api/prescriptions", {
+        const res = await fetch("https://smart-healthcare-app-e0cx.onrender.com/api/prescriptions", {
   headers: {
     Authorization: `Bearer ${localStorage.getItem("token")}`
   }
@@ -38,7 +38,7 @@ export default function Prescriptions({ patients = [] }) {
     const newPrescription = { ...form, id: Date.now() };
 
     try {
-      const res = await fetch("https://smart-healthcare-app-ghwj.onrender.com/api/prescriptions", {
+      const res = await fetch("https://smart-healthcare-app-e0cx.onrender.com/api/prescriptions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPrescription),

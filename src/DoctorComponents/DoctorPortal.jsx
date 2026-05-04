@@ -5,8 +5,8 @@ import { io } from "socket.io-client";
 import toast from "react-hot-toast";
 
 /* ---------------- CONSTANTS & HELPERS ---------------- */
-const API_BASE = "https://smart-healthcare-app-ghwj.onrender.com/api";
-const SOCKET_BASE = "https://smart-healthcare-app-ghwj.onrender.com";
+const API_BASE = "https://smart-healthcare-app-e0cx.onrender.com/api";
+const SOCKET_BASE = "https://smart-healthcare-app-e0cx.onrender.com";
 
 // Headers for authenticated API requests
 const authHeaders = () => {
@@ -450,7 +450,7 @@ const handlePrescribe = async (e) => {
   setPrescribeLoading(true);
 
   try {
-    // ✅ FIXED STRUCTURE
+
     const medicinesData = validMedicines.map((m) => ({
       name: m.name,
       dosage: m.dosage,
@@ -466,7 +466,6 @@ const handlePrescribe = async (e) => {
     formData.append('title', `Prescription from Dr. ${doctorName}`);
     formData.append('date', new Date().toISOString());
 
-    // ✅ IMPORTANT
     formData.append('medicines', JSON.stringify(medicinesData));
 
     if (additionalFile) {
@@ -733,7 +732,7 @@ const ReviewsView = () => {
     const fetchReviews = async () => {
       try {
         const res = await axios.get(
-          "https://smart-healthcare-app-ghwj.onrender.com/api/doctor/reviews",
+           `${API_BASE}/api/doctor/reviews`,
           { headers: authHeaders() }
         );
 

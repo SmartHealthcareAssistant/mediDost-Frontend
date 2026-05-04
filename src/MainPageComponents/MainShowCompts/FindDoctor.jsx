@@ -54,7 +54,7 @@ const FindDoctor = () => {
       if (specialization) params.specialization = specialization;
 
       const { data } = await axios.get(
-        "https://smart-healthcare-app-ghwj.onrender.com/api/doctor/search",
+        "https://smart-healthcare-app-e0cx.onrender.com/api/doctor/search",
         { params }
       );
 
@@ -151,7 +151,7 @@ const handleBookClick = (doc) => {
             <img
 src={
   doc.image?.startsWith("/uploads")
-    ? `https://smart-healthcare-app-ghwj.onrender.com${doc.image}`
+    ? `https://smart-healthcare-app-e0cx.onrender.com${doc.image}`
     : doc.image || "https://via.placeholder.com/400x250?text=Doctor"
 }
               alt={doc.name}
