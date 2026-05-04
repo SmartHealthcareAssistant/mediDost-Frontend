@@ -2,7 +2,7 @@ import "./App.css";
 import Footer from "./MainPageComponents/FooterCompts/Footer";
 import Navbar from "./MainPageComponents/HeaderCompts/Navbar";
 import { Routes, Route, useLocation } from "react-router-dom";
-
+import { useEffect } from "react";
 import Login from "./MainPageComponents/HeaderCompts/Login";
 import Register from "./MainPageComponents/HeaderCompts/Register";
 import DoctorPortal from "./DoctorComponents/DoctorPortal";
@@ -27,7 +27,7 @@ function App() {
 
     return () => clearInterval(interval);
   }, []);
-  
+
   const hideLayoutRoutes = ["/doctor", "/patient", "/pharmacy"];
 
   const shouldHideLayout = hideLayoutRoutes.some((path) =>
