@@ -40,7 +40,7 @@ const Register = () => {
   try {
     setOtpLoading(true);
 
-    const res = await fetch("https://medidost-smart-healthcare-app.onrender.com/send-otp", {
+    const res = await fetch("https://medidost-smart-healthcare-app-txxt.onrender.com/send-otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: formData.email }),
@@ -71,7 +71,7 @@ const handleVerifyOtp = async () => {
   }
 
   try {
-    const res = await fetch("https://medidost-smart-healthcare-app.onrender.com/verify-otp", {
+    const res = await fetch("https://medidost-smart-healthcare-app-txxt.onrender.com/verify-otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -106,7 +106,7 @@ useEffect(() => {
 
 const handleResendOtp = async () => {
   try {
-    const res = await fetch("https://medidost-smart-healthcare-app.onrender.com/resend-otp", {
+    const res = await fetch("https://medidost-smart-healthcare-app-txxt.onrender.com/resend-otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: formData.email }),
@@ -161,7 +161,7 @@ const handleOtpChange = (value, index) => {
 
     try {
       const res = await fetch(
-        `https://medidost-smart-healthcare-app.onrender.com/api/${role}/register`,
+        `https://medidost-smart-healthcare-app-txxt.onrender.com/api/${role}/register`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
