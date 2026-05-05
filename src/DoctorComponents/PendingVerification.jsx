@@ -19,7 +19,7 @@ const PendingVerification = () => {
     const [status, setStatus] = useState('Pending');
 
     const navigate = useNavigate();
-    const API_URL = "https://smart-healthcare-app-e0cx.onrender.com";
+    const API_URL = "https://medidost-smart-healthcare-app.onrender.com";
 
     // ✅ Logout with toast
     const handleLogout = () => {

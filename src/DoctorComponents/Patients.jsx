@@ -7,7 +7,7 @@ export default function Patients({ patients }) {
   useEffect(() => {
     const fetchPrescriptions = async () => {
       try {
-        const res = await fetch("https://smart-healthcare-app-e0cx.onrender.com/prescriptions");
+        const res = await fetch("https://medidost-smart-healthcare-app.onrender.com/prescriptions");
         const data = await res.json();
         setPrescriptions(data);
       } catch (error) {

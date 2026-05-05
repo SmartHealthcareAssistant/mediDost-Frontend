@@ -5,8 +5,8 @@ import { io } from "socket.io-client";
 import toast from "react-hot-toast";
 
 /* ---------------- CONSTANTS & HELPERS ---------------- */
-const API_BASE = "https://smart-healthcare-app-e0cx.onrender.com/api";
-const SOCKET_BASE = "https://smart-healthcare-app-e0cx.onrender.com";
+const API_BASE = "https://medidost-smart-healthcare-app.onrender.com/api";
+const SOCKET_BASE = "https://medidost-smart-healthcare-app.onrender.com";
 
 // Headers for authenticated API requests
 const authHeaders = () => {

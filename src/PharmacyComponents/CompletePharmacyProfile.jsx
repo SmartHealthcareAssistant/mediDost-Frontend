@@ -12,7 +12,7 @@ const authHeaders = () => {
 };
 
 // Base API URL
-const API_BASE = "https://smart-healthcare-app-e0cx.onrender.com/api";
+const API_BASE = "https://medidost-smart-healthcare-app.onrender.com/api";
 
 /* ---------------- LOCATION CONSTANTS (Assuming these are available globally) ---------------- */
 const indianStates = [

@@ -20,7 +20,7 @@ function App() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      fetch("https://smart-healthcare-app-e0cx.onrender.com/test")
+      fetch("https://medidost-smart-healthcare-app.onrender.com/test")
         .then(() => console.log("✅ Ping success"))
         .catch(() => console.log("❌ Ping failed"));
     }, 600000); // 10 minutes
