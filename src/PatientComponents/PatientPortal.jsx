@@ -840,7 +840,7 @@ const submitReview = async () => {
                         <div className="text-sm text-gray-600">{d.specialization}</div>
                         <div className="text-sm text-gray-500">{d.location}</div>
 
-                          {/* ⭐ ADD HERE */}
+                    
   <div className="text-yellow-600 text-sm mt-1">
     ⭐ {d.rating?.toFixed(1) || 0} ({d.numReviews || 0} reviews)
   </div>
