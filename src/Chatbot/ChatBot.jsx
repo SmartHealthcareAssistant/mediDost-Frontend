@@ -50,7 +50,7 @@ export default function ChatBot() {
   // Helper function to get a new session ID
   const fetchNewSession = async () => {
     try {
-      const response = await axios.get("https://medidost-smart-healthcare-app-txxt.onrender.com/api/session");
+      const response = await axios.get("http://localhost:5000/api/session");
       setSessionId(response.data.sessionId);
     } catch (error) {
       // Use console.warn instead of error to avoid alarming logs
@@ -120,7 +120,7 @@ export default function ChatBot() {
 
     try {
       // 2. Send to Backend
-      const response = await axios.post("https://medidost-smart-healthcare-app-txxt.onrender.com/api/chat", {
+      const response = await axios.post("http://localhost:5000/api/chat", {
         message: text,
         sessionId,
       });
@@ -181,7 +181,7 @@ export default function ChatBot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed z-50 flex flex-col items-end bottom-3 right-3 sm:bottom-4 sm:right-4 md:bottom-5 md:right-5lg:bottom-6 lg:right-6">
       {/* Chat Window */}
       <AnimatePresence>
         {isOpen && (
@@ -190,10 +190,31 @@ export default function ChatBot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="w-full max-w-[380px] h-[550px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden mb-4"
+className="
+w-[90vw]
+sm:w-[320px]
+md:w-[340px]
+lg:w-[360px]
+xl:w-[380px]
+
+  h-[65vh]
+  sm:h-[68vh]
+  md:h-[72vh]
+  lg:h-[75vh]
+  max-h-[700px]
+  min-h-[500px]
+
+  bg-white
+  rounded-2xl
+  shadow-2xl
+  border border-gray-100
+  flex flex-col
+  overflow-hidden
+  mb-3 mt-16
+"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-4 flex justify-between items-center shadow-md">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-4 sm:p-4 flex justify-between items-center shadow-md">
               <div className="flex items-center space-x-2 text-white">
 <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center shadow-md">
   <Bot size={18} className="text-green-400" />
@@ -225,7 +246,7 @@ export default function ChatBot() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 bg-slate-50 space-y-4">
+            <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4 bg-slate-50 space-y-4">
               {/* Date separator example */}
               <div className="text-center text-xs text-gray-400 my-2">Today</div>
 
@@ -234,7 +255,7 @@ export default function ChatBot() {
                   key={index}
                   className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <div className={`flex items-end max-w-[80%] space-x-2 ${msg.sender === "user" ? "flex-row-reverse space-x-reverse" : "flex-row"}`}>
+                  <div className={`flex items-end max-w-[85%] sm:max-w-[80%] md:max-w-[75%] space-x-2 ${msg.sender === "user" ? "flex-row-reverse space-x-reverse" : "flex-row"}`}>
                     
                     {/* Avatar */}
 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${
@@ -298,7 +319,19 @@ export default function ChatBot() {
 
             {/* Input Area */}
             <div className="p-4 bg-white border-t border-gray-100">
-              <div className="flex items-center bg-gray-100 rounded-full px-4 py-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white transition-all">
+<div
+  className="
+    flex items-center
+    bg-gray-100
+    rounded-full
+    px-2 sm:px-3 md:px-4
+    py-2
+    focus-within:ring-2
+    focus-within:ring-blue-500
+    focus-within:bg-white
+    transition-all
+  "
+>
                 
                 {/* Voice Input Button */}
                 <button
@@ -315,7 +348,11 @@ export default function ChatBot() {
 
                 <input
                   type="text"
-                  className="flex-1 bg-transparent border-none outline-none text-sm text-gray-700 placeholder-gray-400"
+className="
+  flex-1 bg-transparent border-none outline-none
+  text-xs sm:text-sm md:text-base
+  text-gray-700 placeholder-gray-400
+"
                   placeholder={isListening ? "Listening..." : "Type your symptoms..."}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -355,7 +392,15 @@ export default function ChatBot() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="mb-3 mr-2 bg-white text-blue-700 text-xs px-4 py-2 rounded-full shadow-lg"
+className="
+  mb-2 sm:mb-3 mr-1 sm:mr-2
+  bg-white text-blue-700
+  text-[10px] sm:text-xs
+  px-3 sm:px-4
+  py-1.5 sm:py-2
+  rounded-full shadow-lg
+  max-w-[180px] text-center
+"
     >
       Need medical help?
     </motion.div>
@@ -364,11 +409,7 @@ export default function ChatBot() {
   <motion.button
     onClick={() => setIsOpen(!isOpen)}
     whileTap={{ scale: 0.9 }}
-    className="relative w-16 h-16 rounded-full flex items-center justify-center
-               bg-gradient-to-br from-blue-600 to-blue-500
-               shadow-2xl shadow-blue-300/40
-               transition-all duration-300"
-  >
+    className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16 lg:w-[70px] lg:h-[70px] rounded-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-500 shadow-2xl shadow-blue-300/40 transition-all duration-300">
     {/* Breathing Glow ONLY when closed */}
     {!isOpen && (
       <span className="absolute inset-0 rounded-full bg-blue-400 opacity-30 animate-ping"></span>

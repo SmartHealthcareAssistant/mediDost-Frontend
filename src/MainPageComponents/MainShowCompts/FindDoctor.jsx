@@ -54,7 +54,7 @@ const FindDoctor = () => {
       if (specialization) params.specialization = specialization;
 
       const { data } = await axios.get(
-        "https://medidost-smart-healthcare-app-txxt.onrender.com/api/doctor/search",
+        "http://localhost:5000/api/doctor/search",
         { params }
       );
 
@@ -73,17 +73,10 @@ const FindDoctor = () => {
     }
   };
 
-  // Handle appointment form submission
-const handleBookClick = (doc) => {
-  const token = localStorage.getItem("token");
+  // Handle appointment 
+const handleBookClick = () => {
+  navigate("/login");
 
-  if (!token) {
-    navigate("/login", { state: { message: "Please login to book appointment" } });
-    return;
-  }
-
-  // ✅ Logged in → open modal
-  setSelectedDoctor(doc);
 };
 
   return (
@@ -151,7 +144,7 @@ const handleBookClick = (doc) => {
             <img
 src={
   doc.image?.startsWith("/uploads")
-    ? `https://medidost-smart-healthcare-app-txxt.onrender.com${doc.image}`
+    ? `http://localhost:5000${doc.image}`
     : doc.image || "https://via.placeholder.com/400x250?text=Doctor"
 }
               alt={doc.name}
@@ -207,15 +200,21 @@ src={
 
               {/* Availability + Button */}
               <div className="flex justify-between items-center mt-4">
-                <span
-                  className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                    doc.available
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {doc.available ? "Available" : "Not Available"}
-                </span>
+<span
+  className={`text-sm font-semibold px-3 py-1 rounded-full ${
+    doc.unavailableDates?.includes(
+      appointment.date
+    )
+      ? "bg-red-100 text-red-700"
+      : "bg-green-100 text-green-700"
+  }`}
+>
+  {doc.unavailableDates?.includes(
+    appointment.date
+  )
+    ? "Unavailable"
+    : "Available"}
+</span>
 
                 <button
                   onClick={() => handleBookClick(doc)}
@@ -228,100 +227,6 @@ src={
           </div>
         ))}
       </div>
-
-      {/* Appointment Modal */}
-      {selectedDoctor && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white rounded-2xl shadow-lg w-[90%] max-w-md p-6 relative">
-            <button
-              onClick={() => setSelectedDoctor(null)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-            >
-              <IoClose size={22} />
-            </button>
-
-            <h3 className="text-xl font-semibold mb-2 text-blue-700 text-center">
-              Book Appointment
-            </h3>
-            <p className="text-center text-gray-600 mb-4">
-              with <span className="font-medium">{selectedDoctor.name}</span>
-            </p>
-
-            {/* Appointment Form */}
-            <div className="flex flex-col gap-3">
-              <input
-                type="text"
-                placeholder="Your Name"
-                value={appointment.name}
-                onChange={(e) =>
-                  setAppointment({ ...appointment, name: e.target.value })
-                }
-                className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={appointment.email || ""}
-                onChange={(e) =>
-                  setAppointment({ ...appointment, email: e.target.value })
-                }
-                className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                value={appointment.phone || ""}
-                onChange={(e) =>
-                  setAppointment({ ...appointment, phone: e.target.value })
-                }
-                className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <input
-                type="date"
-                value={appointment.date}
-                onChange={(e) =>
-                  setAppointment({ ...appointment, date: e.target.value })
-                }
-                className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <input
-                type="time"
-                value={appointment.time}
-                onChange={(e) =>
-                  setAppointment({ ...appointment, time: e.target.value })
-                }
-                className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <select
-                value={appointment.type || ""}
-                onChange={(e) =>
-                  setAppointment({ ...appointment, type: e.target.value })
-                }
-                className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">Select Appointment Type</option>
-                <option value="In-person">In-person</option>
-                <option value="Online">Online / Video Call</option>
-              </select>
-              <textarea
-                placeholder="Reason for Visit / Symptoms (optional)"
-                value={appointment.reason || ""}
-                onChange={(e) =>
-                  setAppointment({ ...appointment, reason: e.target.value })
-                }
-                className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
-              />
-
-              <button
-                onClick={handleBook}
-                className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition mt-2"
-              >
-                Confirm Appointment
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

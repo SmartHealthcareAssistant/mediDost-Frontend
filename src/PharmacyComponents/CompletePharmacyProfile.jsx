@@ -12,7 +12,7 @@ const authHeaders = () => {
 };
 
 // Base API URL
-const API_BASE = "https://medidost-smart-healthcare-app-txxt.onrender.com/api";
+const API_BASE = "http://localhost:5000/api";
 
 /* ---------------- LOCATION CONSTANTS (Assuming these are available globally) ---------------- */
 const indianStates = [

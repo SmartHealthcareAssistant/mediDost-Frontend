@@ -5,8 +5,8 @@ import { io } from "socket.io-client";
 import toast from "react-hot-toast";
 
 /* ---------------- CONSTANTS & HELPERS ---------------- */
-const API_BASE = "https://medidost-smart-healthcare-app-txxt.onrender.com/api";
-const SOCKET_BASE = "https://medidost-smart-healthcare-app-txxt.onrender.com";
+const API_BASE = "http://localhost:5000/api";
+const SOCKET_BASE = "http://localhost:5000";
 
 // Headers for authenticated API requests
 const authHeaders = () => {
@@ -24,11 +24,14 @@ const getStatusClasses = (status) => {
     switch (status) {
         case 'Confirmed':
             return 'bg-green-50 text-green-700 ring-green-600/20';
-        case 'Rejected':
-            return 'bg-red-50 text-red-700 ring-red-600/20';
-        case 'Pending':
-        case 'Scheduled':
+
+        case 'Pending Payment':
+        case 'Locked':
             return 'bg-yellow-50 text-yellow-700 ring-yellow-600/20';
+
+        case 'Cancelled':
+            return 'bg-red-50 text-red-700 ring-red-600/20';
+
         default:
             return 'bg-gray-50 text-gray-700 ring-gray-500/10';
     }
@@ -133,6 +136,17 @@ const Sidebar = ({ activeTab, setActiveTab, logout, doctorName, isVerified, isOp
   active={activeTab === "reviews"} 
   onClick={() => { setActiveTab("reviews"); setIsOpen(false); }} 
 />
+
+<SidebarButton
+  label="Availability"
+  icon={CalendarCheckIcon}
+  active={activeTab === "availability"}
+  onClick={() => {
+    setActiveTab("availability");
+    setIsOpen(false);
+  }}
+/>
+
                             <SidebarButton label="Profile" icon={DoctorIcon} active={activeTab === "profile"} onClick={() => { setActiveTab("profile"); setIsOpen(false); }} />
                         </nav>
                     )}
@@ -160,7 +174,7 @@ const StatCard = ({ title, value, color, icon: Icon }) => (
 const AppointmentCard = ({ appt, handleAccept, handleReject, actionLoading, showActions }) => {
     const patientName = appt.patient?.name || appt.patient || 'Unknown Patient';
     const patientPhone = appt.patient?.phone || 'N/A';
-    const appointmentTime = fmtDate(appt.time);
+    const appointmentTime = fmtDate(appt.slotStart);
     const statusClass = getStatusClasses(appt.status);
     
     // History Modal State
@@ -278,25 +292,6 @@ const AppointmentCard = ({ appt, handleAccept, handleReject, actionLoading, show
                 <span className={`text-xs font-semibold px-3 py-1 rounded-full ring-1 ring-inset ${statusClass}`}>
                     {appt.status || 'Pending'}
                 </span>
-                
-                {showActions && (appt.status === 'Pending' || appt.status === 'Scheduled') && (
-                    <div className="flex gap-2 mt-2">
-                        <button 
-                            onClick={() => handleAccept(appt._id)}
-                            disabled={actionLoading}
-                            className="text-white px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 transition text-sm disabled:opacity-50 flex items-center justify-center gap-1 shadow-sm"
-                        >
-                            {actionLoading ? <SpinnerIcon className="w-4 h-4 animate-spin" /> : <CheckCircleIcon className="w-4 h-4" />} Accept
-                        </button>
-                        <button 
-                            onClick={() => handleReject(appt._id)}
-                            disabled={actionLoading}
-                            className="text-white px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 transition text-sm disabled:opacity-50 flex items-center justify-center gap-1 shadow-sm"
-                        >
-                            {actionLoading ? <SpinnerIcon className="w-4 h-4 animate-spin" /> : <TimesCircleIcon className="w-4 h-4" />} Reject
-                        </button>
-                    </div>
-                )}
             </div>
         </div>
     );
@@ -316,7 +311,7 @@ const DashboardView = ({ totalAppointments, pendingAppointments, confirmedAppoin
             {upcoming ? (
                 <div className="border-l-4 border-blue-500 pl-4 py-3 bg-blue-50 rounded-md">
                     <p className="text-lg font-semibold text-gray-800">{upcoming.patient?.name || 'Patient Details Missing'}</p>
-                    <p className="text-sm text-gray-600 mt-1">{fmtDate(upcoming.time)}</p>
+                    <p className="text-sm text-gray-600 mt-1">{fmtDate(upcoming.slotStart)}</p>
                     <p className="text-sm text-gray-500 mt-2">Reason: <span className="italic">{upcoming.notes || 'N/A'}</span></p>
                 </div>
             ) : (
@@ -339,7 +334,11 @@ const DashboardView = ({ totalAppointments, pendingAppointments, confirmedAppoin
                             handleAccept={handleAccept} 
                             handleReject={handleReject} 
                             actionLoading={actionLoading}
-                            showActions={appt.status === 'Pending' || appt.status === 'Scheduled'}
+                         showActions={
+  appt.status === 'Locked' ||
+  appt.status === 'Pending Payment' ||
+  appt.status === 'Confirmed'
+}
                         />
                     ))}
                 </div>
@@ -350,11 +349,11 @@ const DashboardView = ({ totalAppointments, pendingAppointments, confirmedAppoin
 
 // Appointments Full List View (Enhanced Design)
 const AppointmentsView = ({ appointments, loading, handleAccept, handleReject, actionLoading }) => {
-    const upcoming = appointments.filter(a => new Date(a.time) > new Date() && a.status !== 'Rejected')
-        .sort((a, b) => new Date(a.time) - new Date(b.time));
+    const upcoming = appointments.filter(a => new Date(a.slotStart) > new Date() && a.status !== 'Cancelled')
+        .sort((a, b) => new Date(a.slotStart) - new Date(b.slotStart));
 
-    const history = appointments.filter(a => new Date(a.time) <= new Date() || a.status === 'Rejected')
-        .sort((a, b) => new Date(b.time) - new Date(a.time));
+    const history = appointments.filter(a =>new Date(a.slotStart) <= new Date() || a.status === 'Cancelled')
+        .sort((a, b) => new Date(b.slotStart)- new Date(a.slotStart));
 
     return (
         <div className="space-y-8">
@@ -372,7 +371,11 @@ const AppointmentsView = ({ appointments, loading, handleAccept, handleReject, a
                                     handleAccept={handleAccept} 
                                     handleReject={handleReject} 
                                     actionLoading={actionLoading}
-                                    showActions={appt.status === 'Pending' || appt.status === 'Scheduled'}
+                                    showActions={
+  appt.status === 'Locked' ||
+  appt.status === 'Pending Payment' ||
+  appt.status === 'Confirmed'
+}
                                 />
                             ))}
                         </div>
@@ -450,7 +453,7 @@ const handlePrescribe = async (e) => {
   setPrescribeLoading(true);
 
   try {
-
+    // ✅ FIXED STRUCTURE
     const medicinesData = validMedicines.map((m) => ({
       name: m.name,
       dosage: m.dosage,
@@ -466,6 +469,7 @@ const handlePrescribe = async (e) => {
     formData.append('title', `Prescription from Dr. ${doctorName}`);
     formData.append('date', new Date().toISOString());
 
+    // ✅ IMPORTANT
     formData.append('medicines', JSON.stringify(medicinesData));
 
     if (additionalFile) {
@@ -548,7 +552,7 @@ const handlePrescribe = async (e) => {
               placeholder="Duration"
               value={med.duration}
               onChange={(e) =>
-                handleMedicineChange(i, "duration", e.target.value)
+                handleMedicineChange(index, "duration", e.target.value)
               }
               className="border p-2 rounded"
             />
@@ -732,7 +736,7 @@ const ReviewsView = () => {
     const fetchReviews = async () => {
       try {
         const res = await axios.get(
-           `${API_BASE}/api/doctor/reviews`,
+          "http://localhost:5000/api/doctor/reviews",
           { headers: authHeaders() }
         );
 
@@ -772,6 +776,134 @@ const ReviewsView = () => {
     </div>
   );
 };
+
+
+const AvailabilityView = () => {
+
+  const [date, setDate] = useState("");
+
+  const [status, setStatus] = useState("");
+
+  const markUnavailable = async () => {
+
+    if (!date) {
+      toast.error("Please select a date");
+      return;
+    }
+
+    try {
+
+      await axios.put(
+        `${API_BASE}/doctor/availability/unavailable`,
+        { date },
+        { headers: authHeaders() }
+      );
+
+      // ✅ STATUS
+      setStatus("Unavailable");
+
+      // ✅ TOAST
+      toast.success(
+        `Marked unavailable for ${date}`
+      );
+
+    } catch (err) {
+
+      console.error(err);
+
+      toast.error("Failed to mark unavailable");
+    }
+  };
+
+  const markAvailable = async () => {
+
+    if (!date) {
+      toast.error("Please select a date");
+      return;
+    }
+
+    try {
+
+      await axios.put(
+        `${API_BASE}/doctor/availability/available`,
+        { date },
+        { headers: authHeaders() }
+      );
+
+      // ✅ STATUS
+      setStatus("Available");
+
+      // ✅ TOAST
+      toast.success(
+        `Marked available for ${date}`
+      );
+
+    } catch (err) {
+
+      console.error(err);
+
+      toast.error("Failed to mark available");
+    }
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-xl shadow">
+
+      <h2 className="text-2xl font-bold mb-4">
+        Doctor Availability
+      </h2>
+
+      {/* DATE INPUT */}
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => {
+
+          setDate(e.target.value);
+
+          // RESET STATUS WHEN DATE CHANGES
+          setStatus("");
+        }}
+        className="border p-3 rounded-lg"
+      />
+
+      {/* STATUS */}
+      {status && (
+        <div
+          className={`mt-4 px-4 py-2 rounded-lg text-white font-semibold w-fit
+            ${
+              status === "Unavailable"
+                ? "bg-red-500"
+                : "bg-green-500"
+            }
+          `}
+        >
+          {status}
+        </div>
+      )}
+
+      {/* BUTTONS */}
+      <div className="flex flex-col sm:flex-row gap-4 mt-4">
+
+        <button
+          onClick={markUnavailable}
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition"
+        >
+          Mark Unavailable
+        </button>
+
+        <button
+          onClick={markAvailable}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
+        >
+          Mark Available
+        </button>
+
+      </div>
+    </div>
+  );
+};
+
 
 
 /* ---------------- MAIN COMPONENT ---------------- */
@@ -822,7 +954,7 @@ export default function DoctorPortal() {
         setLoading(true);
         try {
             const res = await axios.get(`${API_BASE}/doctor/appointments`, { headers: authHeaders() });
-            const sortedAppts = Array.isArray(res.data) ? res.data.sort((a, b) => new Date(a.time) - new Date(b.time)) : [];
+            const sortedAppts = Array.isArray(res.data) ? res.data.sort((a, b) =>new Date(a.slotStart) - new Date(b.slotStart)) : [];
             setAppointments(sortedAppts);
         } catch (err) {
             console.error("Load Appointments Error:", err);
@@ -854,7 +986,7 @@ export default function DoctorPortal() {
                 
                 socket.on('newAppointment', (newAppt) => {
                     toast.success(`New Appointment Booked by ${newAppt.patient?.name || 'a patient'}!`);
-                    setAppointments(prev => [newAppt, ...prev].sort((a, b) => new Date(a.time) - new Date(b.time)));
+                    setAppointments(prev => [newAppt, ...prev].sort((a, b) => new Date(a.slotStart)- new Date(b.slotStart)));
                 });
                 socket.on('appointmentUpdate', (updatedAppt) => {
                      setAppointments(prev => prev.map(a => 
@@ -920,12 +1052,12 @@ export default function DoctorPortal() {
 
     /* ---------------- Derived Data for UI ---------------- */
     const totalAppointments = appointments.length;
-    const pendingAppointments = appointments.filter(a => a.status === 'Pending' || a.status === 'Scheduled').length;
+    const pendingAppointments = appointments.filter(a =>  a.status === 'Locked' || a.status === 'Pending Payment' || a.status === 'Confirmed').length;
     const confirmedAppointments = appointments.filter(a => a.status === 'Confirmed').length;
-    const upcoming = appointments.filter(a => new Date(a.time) > new Date() && a.status === 'Confirmed').sort((a, b) => new Date(a.time) - new Date(b.time))[0];
+    const upcoming = appointments.filter(a => new Date(a.slotStart)  > new Date() && a.status === 'Confirmed').sort((a, b) => new Date(a.slotStart) - new Date(b.slotStart))[0];
     
     const recentAppointments = appointments
-        .filter(a => a.status === 'Pending' || a.status === 'Scheduled')
+        .filter(a => a.status === 'Locked' || a.status === 'Pending Payment' || a.status === 'Confirmed')
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .slice(0, 5);
         
@@ -1002,6 +1134,9 @@ export default function DoctorPortal() {
                 )}
 
                 {activeTab === "reviews" && <ReviewsView />}
+                {activeTab === "availability" && (
+                  <AvailabilityView />
+                )}
             </div>
         </div>
     );

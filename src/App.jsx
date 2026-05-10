@@ -18,15 +18,6 @@ import ChatBot from "./Chatbot/ChatBot";
 function App() {
   const location = useLocation();
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetch("https://medidost-smart-healthcare-app-txxt.onrender.com/test")
-        .then(() => console.log("✅ Ping success"))
-        .catch(() => console.log("❌ Ping failed"));
-    }, 600000); // 10 minutes
-
-    return () => clearInterval(interval);
-  }, []);
 
   const hideLayoutRoutes = ["/doctor", "/patient", "/pharmacy"];
 

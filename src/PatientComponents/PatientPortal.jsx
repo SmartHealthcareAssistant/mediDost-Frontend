@@ -6,7 +6,7 @@ import logo from "../../src/assets/logo/image.png"
 import { io } from "socket.io-client";
 
 /* ---------------- CONSTANTS & HELPERS ---------------- */
-const API_BASE = "https://medidost-smart-healthcare-app-txxt.onrender.com/api";
+const API_BASE = "http://localhost:5000/api";
 const authHeaders = () => {
   const t = localStorage.getItem("token");
   return t ? { Authorization: `Bearer ${t}` } : {};
@@ -155,7 +155,7 @@ const [selectedSlot, setSelectedSlot] = useState(null);
 
 
   useEffect(() => {
-  const s = io("https://medidost-smart-healthcare-app-txxt.onrender.com");
+  const s = io("http://localhost:5000");
   setSocket(s);
 
   return () => s.disconnect();
@@ -200,7 +200,13 @@ useEffect(() => {
       try {
         // Using /api/pharmacy (Requires JWT token)
         const res = await axios.get(`${API_BASE}/pharmacy`, { headers: authHeaders(), signal: ctrl.signal });
-        setPharmacies(Array.isArray(res.data) ? res.data : []);
+        setPharmacies(
+  Array.isArray(res.data?.pharmacies)
+    ? res.data.pharmacies
+    : Array.isArray(res.data)
+    ? res.data
+    : []
+);
       } catch (err) {
         if (!axios.isCancel(err)) console.error("load pharmacies error:", err.response?.status || err.message);
         setPharmacies([]);
@@ -230,7 +236,7 @@ useEffect(() => {
     async function loadPresc() {
       try {
         // Fetch prescriptions associated with the patient
-        const res = await axios.get(`${API_BASE}/prescriptions`, { headers: authHeaders(), signal: ctrl.signal });
+        const res = await axios.get(`${API_BASE}/patient/prescriptions`, { headers: authHeaders(), signal: ctrl.signal });
         setPrescriptions(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         if (!axios.isCancel(err)) console.error("load prescriptions error", err);
@@ -274,7 +280,7 @@ useEffect(() => {
     setShowSlots(true);
   };
 
-// ✅ ADD HERE
+
 const fetchSlots = async (date) => {
   try {
     const res = await axios.get(
@@ -290,7 +296,7 @@ const fetchSlots = async (date) => {
 useEffect(() => {
   if (!socket) return;
 
-  // 🔥 when someone books slot
+  // when someone books slot
 socket.on("slotBooked", (data) => {
   setSlots(prev =>
     prev.map(slot =>
@@ -301,7 +307,7 @@ new Date(slot.slotStart).getTime() === new Date(data.slotStart).getTime()
   );
 });
 
-  // 🔥 when slot released
+  // when slot released
   socket.on("slotReleased", (data) => {
     if (selectedDate) {
       fetchSlots(selectedDate);
@@ -328,7 +334,7 @@ const handleBookAppointment = async () => {
     const doctorId = bookingDoctor._id;
     const doctorFee = bookingDoctor.consultationFee;
 
-    // ✅ DEBUG LOG
+
 console.log("Sending slot:", {
   doctorId,
   slotStart: selectedSlot.slotStart,
@@ -349,7 +355,7 @@ console.log("Sending slot:", {
 
     const appointmentId = lockRes.data.appointmentId;
 
-    // 🔥 STEP 2: CREATE ORDER
+    //  STEP 2: CREATE ORDER
     const res = await axios.post(
       `${API_BASE}/payment/create-order`,
       {
@@ -388,13 +394,44 @@ key: import.meta.env.VITE_RAZORPAY_KEY,
       }
     };
 
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+const rzp = new window.Razorpay({
+  ...options,
+
+  modal: {
+    ondismiss: async function () {
+
+      // 🔥 RELEASE SLOT WHEN USER CLOSES PAYMENT
+      await axios.post(
+        `${API_BASE}/payment/release-slot`,
+        {
+          slotStart: selectedSlot.slotStart,
+          doctorId
+        },
+        { headers: authHeaders() }
+      );
+
+      toast.error("Payment cancelled");
+
+      setBookingLoading(false);
+    }
+  }
+});
+
+rzp.open();
 
   } catch (err) {
-    console.error(err);
-    toast.error(err?.response?.data?.message || "Booking failed ❌");
-  }
+  console.error(err);
+
+  const errorMessage =
+    err?.response?.data?.message ||
+    "Booking failed ❌";
+
+  // SHOW INSIDE BOOKING CARD
+  setBookingMessage(errorMessage);
+
+  // OPTIONAL TOAST
+  // toast.error(errorMessage);
+}
   finally {
   setBookingLoading(false);
 }
@@ -480,7 +517,7 @@ const submitReview = async () => {
     setPharmacyLoading(true);
     try {
       // Fetch full details of the specific pharmacy
-      const res = await axios.get(`${API_BASE}/pharmacy/${ph._id}`, { headers: authHeaders() });
+      const res = await axios.get(`${API_BASE}/patient/pharmacy/${ph._id}`, { headers: authHeaders() });
       const data = res.data || {};
       const medicines = Array.isArray(data.medicines) ? data.medicines : (data.inventory || []); 
       setPharmacyMedicines(medicines);
@@ -540,8 +577,8 @@ const submitReview = async () => {
   /* ---------------- derived values ---------------- */
   const totalBookings = Array.isArray(appointments) ? appointments.length : 0;
   const upcomingAppointment = (Array.isArray(appointments) ? appointments : [])
-    .filter((a) => a.time && new Date(a.time) > new Date())
-    .sort((a, b) => new Date(a.time) - new Date(b.time))[0] || null;
+    .filter((a) => a.slotStart && new Date(a.slotStart) > new Date())
+    .sort((a, b) => new Date(a.slotStart) - new Date(b.slotStart))[0] || null;
   const upcomingDoctor = upcomingAppointment ? getDoctorById(upcomingAppointment.doctor) : null;
   const upcoming = upcomingAppointment;
 
@@ -549,10 +586,18 @@ const submitReview = async () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 font-[Inter]">
       {/* Header */}
-      <div className="flex items-center justify-between bg-white border-b p-4 shadow-sm">
-        <div className="flex items-center gap-3">
+<div
+  className="
+    flex items-center justify-between
+    bg-white border-b shadow-sm
+    px-3 sm:px-4 md:px-6
+    py-3
+    sticky top-0 z-30
+  "
+>
+        <div className="flex flex-col sm:flex-row gap-3">
           <div>
-                <div className="flex items-center select-none ">
+                <div className="flex items-center select-none min-w-0">
 
   {/* ✅ MOBILE MENU BUTTON */}
   <button
@@ -573,10 +618,10 @@ const submitReview = async () => {
       />
 
       {/* Brand Name */}
-      <div className="flex-col gap-0">
+<div className="flex flex-col min-w-0">
       <h1
         className="
-          text-lg sm:text-xl md:text-2xl lg:text-3xl
+text-base sm:text-lg md:text-xl lg:text-2xl
           font-bold
           tracking-normal
           leading-none
@@ -605,20 +650,57 @@ const submitReview = async () => {
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700">{user?.name ? user.name.charAt(0).toUpperCase() : "P"}</div>
         </div>
       </div>
-<div className="flex h-[calc(100vh-64px)]">
-<aside className="w-16 md:w-64 bg-gray-900 text-white p-3 flex flex-col h-full sticky top-0">
+<div className="flex relative h-[calc(100vh-72px)] overflow-hidden">
+
+  {sidebarOpen && (
+  <div
+    className="fixed inset-0 bg-black/40 z-40 md:hidden"
+    onClick={() => setSidebarOpen(false)}
+  />
+)}
+<aside
+  className={`
+    fixed md:static
+    top-0 left-0
+    z-50
+    h-full
+    w-64
+    bg-gray-900 text-white
+    p-4
+    flex flex-col
+    transition-transform duration-300
+
+    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+    md:translate-x-0
+  `}
+>
 
   {/* MENU */}
   <nav className="space-y-2">
-    <button onClick={() => setPage("dashboard")} className={`w-full text-left px-3 py-2 rounded-lg text-base md:text-lg font-medium transition-colors ${page === "dashboard" ? "bg-blue-600" : "hover:bg-gray-800"}`}>Dashboard</button>
+    <button onClick={() => {
+  setPage("dashboard");
+  setSidebarOpen(false);
+}} className={`w-full text-left px-3 py-2 rounded-lg text-base md:text-lg font-medium transition-colors ${page === "dashboard" ? "bg-blue-600" : "hover:bg-gray-800"}`}>Dashboard</button>
 
-    <button onClick={() => setPage("appointments")} className={`w-full text-left px-3 py-2 rounded-lg text-base md:text-lg font-medium transition-colors ${page === "appointments" ? "bg-blue-600" : "hover:bg-gray-800"}`}>Appointments</button>
+    <button onClick={() => {
+  setPage("appointments");
+  setSidebarOpen(false);
+}} className={`w-full text-left px-3 py-2 rounded-lg text-base md:text-lg font-medium transition-colors ${page === "appointments" ? "bg-blue-600" : "hover:bg-gray-800"}`}>Appointments</button>
 
-    <button onClick={() => setPage("prescriptions")} className={`w-full text-left px-3 py-2 rounded-lg text-base md:text-lg font-medium transition-colors ${page === "prescriptions" ? "bg-blue-600" : "hover:bg-gray-800"}`}>Prescriptions</button>
+    <button onClick={() => {
+  setPage("prescriptions");
+  setSidebarOpen(false);
+}} className={`w-full text-left px-3 py-2 rounded-lg text-base md:text-lg font-medium transition-colors ${page === "prescriptions" ? "bg-blue-600" : "hover:bg-gray-800"}`}>Prescriptions</button>
 
-    <button onClick={() => setPage("pharmacies")} className={`w-full text-left px-3 py-2 rounded-lg text-base md:text-lg font-medium transition-colors ${page === "pharmacies" ? "bg-blue-600" : "hover:bg-gray-800"}`}>Pharmacies</button>
+    <button onClick={() => {
+  setPage("pharmacies");
+  setSidebarOpen(false);
+}} className={`w-full text-left px-3 py-2 rounded-lg text-base md:text-lg font-medium transition-colors ${page === "pharmacies" ? "bg-blue-600" : "hover:bg-gray-800"}`}>Pharmacies</button>
 
-    <button onClick={() => setPage("profile")} className={`w-full text-left px-3 py-2 rounded-lg text-base md:text-lg font-medium  transition-colors ${page === "profile" ? "bg-blue-600" : "hover:bg-gray-800"}`}>Profile</button>
+    <button onClick={() => {
+  setPage("profile");
+  setSidebarOpen(false);
+}} className={`w-full text-left px-3 py-2 rounded-lg text-base md:text-lg font-medium  transition-colors ${page === "profile" ? "bg-blue-600" : "hover:bg-gray-800"}`}>Profile</button>
   </nav>
 
   {/* 🔥 THIS WILL NOW GO TO BOTTOM */}
@@ -634,15 +716,23 @@ const submitReview = async () => {
 </aside>
 
         {/* Main Content Area */}
-<main className="flex-1 p-6 overflow-y-auto h-full">
+<main
+  className="
+    flex-1
+    overflow-y-auto
+    h-full
+    p-3 sm:p-4 md:p-6
+    w-full
+  "
+>
           {page === "dashboard" && (
             <div>
               <h2 className="text-2xl font-semibold mb-4">Dashboard</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 <div className="bg-white p-4 rounded-xl shadow border-l-4 border-blue-500">
                   <div className="text-sm text-gray-500">Upcoming Appointment</div>
                   <div className="font-bold text-lg mt-1">{upcomingDoctor ? upcomingDoctor.name : "No upcoming"}</div>
-                  <div className="text-sm text-gray-600">{upcoming ? fmtDate(upcoming.time) : ""}</div>
+                  <div className="text-sm text-gray-600">{upcoming ? fmtDate(upcoming.slotStart) : ""}</div>
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow border-l-4 border-green-500">
                   <div className="text-sm text-gray-500">Total Bookings</div>
@@ -670,10 +760,16 @@ const submitReview = async () => {
                     {appointments.map((a) => {
                       const docDetails = getDoctorById(a.doctor);
                       return (
-                        <li key={a._id || a.id} className="bg-white p-4 rounded-xl shadow flex justify-between items-center hover:shadow-lg transition">
+                        <li key={a._id || a.id} className="
+  bg-white p-4 rounded-xl shadow
+  flex flex-col sm:flex-row
+  gap-3
+  justify-between sm:items-center
+  hover:shadow-lg transition
+">
                           <div>
                             <div className="font-bold text-blue-600">{a.title || (docDetails ? docDetails.name : 'Consultation')}</div>
-                            <div className="text-sm text-gray-700">{fmtDate(a.time)}</div>
+                            <div className="text-sm text-gray-700">{fmtDate(a.slotStart)}</div>
                             <div className="text-sm text-gray-500">Doctor: {docDetails ? docDetails.name : 'Unknown'} • Loc: {docDetails ? docDetails.location : 'N/A'}</div>
                             {docDetails?.consultationFee !== undefined && (
                                 // FEE DISPLAY ADDED HERE
@@ -695,21 +791,21 @@ const submitReview = async () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-semibold">Pharmacies</h2>
-                <div className="flex gap-2">
-                  <input placeholder="Search pharmacy/location" value={pharmQuery} onChange={(e) => setPharmQuery(e.target.value)} className="px-3 py-2 border rounded-lg w-64 shadow-sm" />
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <input placeholder="Search pharmacy/location" value={pharmQuery} onChange={(e) => setPharmQuery(e.target.value)} className="px-3 py-2 border rounded-lg w-full sm:w-64 shadow-sm"/>
                   <button onClick={() => setPharmQuery("")} className="px-3 py-2 border rounded-lg hover:bg-gray-200 transition-colors">Clear</button>
                 </div>
               </div>
 
               {pharmaciesFiltered.length === 0 ? <p className="text-gray-500 p-4 bg-white rounded-lg shadow">No pharmacies found. Ensure a pharmacy has completed its profile.</p> : (
-                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                   {pharmaciesFiltered.map((p) => (
                     <li key={p._id} className="bg-white p-4 rounded-xl shadow flex flex-col gap-3 hover:shadow-lg transition">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-bold text-blue-700">{p.name || p.pharmacyName}</div>
+                          <div className="font-bold text-blue-700">{p.pharmacyName}</div>
                           <div className="text-sm text-gray-600">{p.location || p.city || p.state}</div>
-                          <div className="text-sm text-gray-500">{fmtPhone(p.pharmaPhone || p.phone)} {p.email ? ` • ${p.email}` : ""}</div>
+                          <div className="text-sm text-gray-500"> {fmtPhone(p.pharmaPhone)}{p.email ? ` • ${p.email}` : ""}</div>
                           <div className="text-xs text-gray-500 mt-1">Timings: {p.timings || 'N/A'}</div>
                         </div>
                         <button onClick={() => openPharmacy(p)} className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">View Meds</button>
@@ -760,7 +856,7 @@ const submitReview = async () => {
         {p.files.map((f, i) => (
           <a
             key={i}
-            href={`https://medidost-smart-healthcare-app-txxt.onrender.com${f}`}
+            href={`http://localhost:5000${f}`}
             target="_blank"
             rel="noreferrer"
             className="text-blue-600 underline block"
@@ -813,14 +909,14 @@ const submitReview = async () => {
             <div className="mt-8">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold">Find Doctors</h3>
-                <div className="flex gap-2">
-                  <input placeholder="Name or specialization" value={doctorQuery} onChange={(e) => setDoctorQuery(e.target.value)} className="px-3 py-2 border rounded-lg" />
-                  <input placeholder="Location filter" value={doctorLocation} onChange={(e) => setDoctorLocation(e.target.value)} className="px-3 py-2 border rounded-lg" />
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <input placeholder="Name or specialization" value={doctorQuery} onChange={(e) => setDoctorQuery(e.target.value)} className="px-3 py-2 border rounded-lg w-full sm:w-auto" />
+                  <input placeholder="Location filter" value={doctorLocation} onChange={(e) => setDoctorLocation(e.target.value)} className="px-3 py-2 border rounded-lg w-full sm:w-auto" />
                   <button onClick={() => { setDoctorQuery(""); setDoctorLocation(""); }} className="px-3 py-2 border rounded-lg hover:bg-gray-200 transition">Clear</button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {doctorsFiltered.length === 0 ? (
                   <div className="text-gray-500 p-4">No doctors found</div>
                 ) : doctorsFiltered.map((d) => (
@@ -829,7 +925,7 @@ const submitReview = async () => {
                      <img
   src={
     d.image
-      ? `https://medidost-smart-healthcare-app-txxt.onrender.com${d.image}`
+      ? `http://localhost:5000${d.image}`
       : "https://via.placeholder.com/150"
   }
   alt={d.name}
@@ -840,7 +936,7 @@ const submitReview = async () => {
                         <div className="text-sm text-gray-600">{d.specialization}</div>
                         <div className="text-sm text-gray-500">{d.location}</div>
 
-                    
+                          {/* ⭐ ADD HERE */}
   <div className="text-yellow-600 text-sm mt-1">
     ⭐ {d.rating?.toFixed(1) || 0} ({d.numReviews || 0} reviews)
   </div>
@@ -891,7 +987,19 @@ const submitReview = async () => {
     />
 
     {/* Modal */}
-    <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto z-10">
+<div
+  className="
+    bg-white
+    w-full
+    sm:max-w-md
+    rounded-t-2xl sm:rounded-xl
+    p-4 sm:p-6
+    max-h-[90vh]
+    overflow-y-auto
+    z-10
+    shadow-2xl
+  "
+>
 
       {/* Header */}
       <h3 className="text-lg sm:text-xl font-semibold mb-1">
@@ -910,15 +1018,52 @@ const submitReview = async () => {
 
       {/* Date */}
       <label className="block text-sm mb-1">Select Date</label>
-      <input
-        type="date"
-        value={selectedDate}
-        onChange={(e) => {
-          setSelectedDate(e.target.value);
-          fetchSlots(e.target.value);
-        }}
-        className="w-full px-3 py-2 border rounded-lg mb-3 text-sm sm:text-base"
-      />
+<input
+  type="date"
+  value={selectedDate}
+  onChange={async (e) => {
+
+    const date = e.target.value;
+
+    setSelectedDate(date);
+
+    try {
+
+      const res = await axios.get(
+        `${API_BASE}/doctor/${bookingDoctor._id}/slots?date=${date}`
+      );
+
+      // DOCTOR UNAVAILABLE
+      if (res.data.unavailable) {
+
+        setSlots([]);
+
+        setBookingMessage(
+          "Doctor is unavailable on this date"
+        );
+
+        return;
+      }
+
+      // CLEAR MESSAGE
+      setBookingMessage("");
+
+      // LOAD AVAILABLE SLOTS
+      setSlots(res.data);
+
+    } catch (err) {
+
+      console.error(err);
+
+      setSlots([]);
+
+      setBookingMessage(
+        "Failed to load slots"
+      );
+    }
+  }}
+  className="w-full px-3 py-2 border rounded-lg mb-3 text-sm sm:text-base"
+/>
 
       {/* Slots */}
       <label className="block text-sm mb-1">Available Slots</label>
@@ -1023,28 +1168,59 @@ const submitReview = async () => {
       {/* Buttons */}
       <div className="flex flex-col sm:flex-row gap-2">
         
-        <button
-          onClick={async () => {
-            if (selectedSlot && bookingDoctor?._id) {
-              await axios.post(`${API_BASE}/payment/release-slot`, {
-                doctorId: bookingDoctor._id,
-                slotStart: selectedSlot.slotStart
-              });
-            }
-            setBookingDoctor(null);
-          }}
-          className="w-full sm:w-auto px-3 py-2 border rounded-lg hover:bg-gray-200 transition"
-        >
-          Cancel
-        </button>
+<button
+  onClick={handleBookAppointment}
+  disabled={
+    bookingLoading ||
+    bookingMessage ===
+      "Doctor is unavailable on this date"
+  }
+  className={`w-full sm:w-auto px-3 py-2 rounded-lg transition
+    ${
+      bookingMessage ===
+      "Doctor is unavailable on this date"
+        ? "bg-gray-400 cursor-not-allowed text-white"
+        : "bg-blue-600 hover:bg-blue-700 text-white"
+    }
+  `}
+>
+  {bookingMessage ===
+  "Doctor is unavailable on this date"
+    ? "Unavailable"
+    : `Pay ₹${bookingDoctor?.consultationFee} & Book`}
+</button>
 
-        <button
-          onClick={handleBookAppointment}
-          disabled={bookingLoading}
-          className="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
-        >
-          Pay ₹{bookingDoctor?.consultationFee} & Book
-        </button>
+<button
+  onClick={async () => {
+
+    if (selectedSlot && bookingDoctor?._id) {
+      try {
+        await axios.post(
+          `${API_BASE}/payment/release-slot`,
+          {
+            doctorId: bookingDoctor._id,
+            slotStart: selectedSlot.slotStart
+          },
+          { headers: authHeaders() }
+        );
+      } catch (err) {
+        console.error("release slot error", err);
+      }
+    }
+
+    setBookingDoctor(null);
+
+    setSelectedDate("");
+    setSlots([]);
+    setSelectedSlot(null);
+    setBookingMessage("");
+    setShowSlots(true);
+
+  }}
+  className="w-full sm:w-auto px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
+>
+  Cancel
+</button>
       </div>
 
     </div>
@@ -1055,7 +1231,16 @@ const submitReview = async () => {
       {doctorDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={closeDoctorDetail} />
-          <div className="relative bg-white p-6 rounded-xl w-full max-w-2xl z-10 shadow-2xl">
+          <div className="
+  relative bg-white
+  p-4 sm:p-6
+  rounded-xl
+  w-full
+  max-w-2xl
+  max-h-[90vh]
+  overflow-y-auto
+  z-10 shadow-2xl
+">
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-xl font-bold text-blue-700">{doctorDetail.name}</h3>

@@ -2,7 +2,7 @@ import React, { useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 
 // API Constants (Assuming these are defined elsewhere)
-const API_BASE = "https://medidost-smart-healthcare-app-txxt.onrender.com";
+const API_BASE = "http://localhost:5000/api";
 
 // Mock Auth Hook (assuming your real hook handles global state and navigation logic)
 const useAuth = () => {
@@ -51,7 +51,7 @@ const [timer, setTimer] = useState(0);
     
 
     try {
-      const res = await fetch(`https://medidost-smart-healthcare-app-txxt.onrender.com/api/${role}/login`, {
+      const res = await fetch(`http://localhost:5000/api/${role}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -85,8 +85,8 @@ if (data.role === "doctor") {
 }
 
 if (data.role === "pharmacy") {
-  localStorage.setItem("pharmacyProfileCompleted", data.profileCompleted);
-  localStorage.setItem("pharmacyVerified", data.verified);
+localStorage.setItem("pharmacyProfileCompleted", String(data.profileCompleted));
+localStorage.setItem("pharmacyVerified", String(data.verified));
 }
 
       // Clear input fields
@@ -102,7 +102,7 @@ if (data.role === "pharmacy") {
   };
 
   const handleSendResetOtp = async () => {
-  const res = await fetch("https://medidost-smart-healthcare-app-txxt.onrender.com/send-reset-otp", {
+  const res = await fetch("http://localhost:5000/send-reset-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: resetEmail }),
@@ -117,7 +117,7 @@ if (data.role === "pharmacy") {
 const handleVerifyResetOtp = async () => {
   const enteredOtp = otp.join("");
 
-  const res = await fetch("https://medidost-smart-healthcare-app-txxt.onrender.com/verify-reset-otp", {
+  const res = await fetch("http://localhost:5000/verify-reset-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: resetEmail, otp: enteredOtp }),
@@ -127,7 +127,7 @@ const handleVerifyResetOtp = async () => {
 };
 
 const handleResetPassword = async () => {
-  const res = await fetch("https://medidost-smart-healthcare-app-txxt.onrender.com/reset-password", {
+  const res = await fetch("http://localhost:5000/reset-password", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

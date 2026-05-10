@@ -10,8 +10,8 @@ export default function ProtectedRoute({ component: Component, allowedRole }) {
   const profileCompleted = localStorage.getItem(`${role}ProfileCompleted`);
   const verified = localStorage.getItem(`${role}Verified`);
 
-  const isProfileComplete = profileCompleted === "true";
-  const isVerified = verified === "true";
+const isProfileComplete = profileCompleted === "true" || profileCompleted === true;
+const isVerified = verified === "true" || verified === true;
 
   // ❌ Not logged in
   if (!token) {
@@ -45,6 +45,5 @@ export default function ProtectedRoute({ component: Component, allowedRole }) {
     }
   }
 
-  // ✅ allow
   return <Component />;
 }

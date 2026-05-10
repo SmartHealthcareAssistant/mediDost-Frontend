@@ -19,7 +19,7 @@ const PharmacyPendingVerificationPage = () => {
   const [status, setStatus] = useState("Pending");
 
   const navigate = useNavigate();
-  const API_URL = "https://medidost-smart-healthcare-app-txxt.onrender.com";
+  const API_URL = "http://localhost:5000";
 
   // ✅ Logout
   const handleLogout = () => {
