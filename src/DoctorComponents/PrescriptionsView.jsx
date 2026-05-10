@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 
 /* ---------------- CONSTANTS & HELPERS (Required from main file) ---------------- */
 // Assume these are defined in your environment or parent component
-const API_BASE = "https://medidost-smart-healthcare-app.onrender.com/api";
+const API_BASE = "https://medidost-smart-healthcare-app-txxt.onrender.com/api";
 const authHeaders = () => {
     const t = localStorage.getItem("token");
     return t ? { Authorization: `Bearer ${t}` } : {};

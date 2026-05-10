@@ -6,7 +6,7 @@ import logo from "../../src/assets/logo/image.png"
 import { io } from "socket.io-client";
 
 /* ---------------- CONSTANTS & HELPERS ---------------- */
-const API_BASE = "https://medidost-smart-healthcare-app.onrender.com/api";
+const API_BASE = "https://medidost-smart-healthcare-app-txxt.onrender.com/api";
 const authHeaders = () => {
   const t = localStorage.getItem("token");
   return t ? { Authorization: `Bearer ${t}` } : {};
@@ -155,7 +155,7 @@ const [selectedSlot, setSelectedSlot] = useState(null);
 
 
   useEffect(() => {
-  const s = io("https://medidost-smart-healthcare-app.onrender.com");
+  const s = io("https://medidost-smart-healthcare-app-txxt.onrender.com");
   setSocket(s);
 
   return () => s.disconnect();
@@ -760,7 +760,7 @@ const submitReview = async () => {
         {p.files.map((f, i) => (
           <a
             key={i}
-            href={`https://medidost-smart-healthcare-app.onrender.com${f}`}
+            href={`https://medidost-smart-healthcare-app-txxt.onrender.com${f}`}
             target="_blank"
             rel="noreferrer"
             className="text-blue-600 underline block"
@@ -829,7 +829,7 @@ const submitReview = async () => {
                      <img
   src={
     d.image
-      ? `https://medidost-smart-healthcare-app.onrender.com${d.image}`
+      ? `https://medidost-smart-healthcare-app-txxt.onrender.com${d.image}`
       : "https://via.placeholder.com/150"
   }
   alt={d.name}

@@ -54,7 +54,7 @@ const FindDoctor = () => {
       if (specialization) params.specialization = specialization;
 
       const { data } = await axios.get(
-        "https://medidost-smart-healthcare-app.onrender.com/api/doctor/search",
+        "https://medidost-smart-healthcare-app-txxt.onrender.com/api/doctor/search",
         { params }
       );
 
@@ -151,7 +151,7 @@ const handleBookClick = (doc) => {
             <img
 src={
   doc.image?.startsWith("/uploads")
-    ? `https://medidost-smart-healthcare-app.onrender.com${doc.image}`
+    ? `https://medidost-smart-healthcare-app-txxt.onrender.com${doc.image}`
     : doc.image || "https://via.placeholder.com/400x250?text=Doctor"
 }
               alt={doc.name}
