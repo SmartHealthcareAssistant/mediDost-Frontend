@@ -1,5 +1,25 @@
+# =========================
+# Dependencies
+# =========================
+node_modules/
+jspm_packages/
+
+# =========================
+# Build / Production
+# =========================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+coverage/
+target/
+
+# =========================
 # Logs
-logs
+# =========================
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,28 +27,113 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies
-node_modules
-
-# Build folders
-dist
-dist-ssr
-
-# Environment files
+# =========================
+# Environment Variables
+# =========================
 .env
 .env.*
 !.env.example
 
-# Local files
-*.local
+# =========================
+# OS Generated Files
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
 
-# Editor directories and files
+# =========================
+# IDE / Editor Files
+# =========================
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+*.swp
+*.swo
+
+# =========================
+# Local Config Files
+# =========================
+*.local
+
+# =========================
+# Temporary Files
+# =========================
+tmp/
+temp/
+*.tmp
+
+# =========================
+# Cache Files
+# =========================
+.cache/
+.parcel-cache/
+.eslintcache
+
+# =========================
+# Package Managers
+# =========================
+.pnpm-store/
+.yarn/
+.yarn-cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# =========================
+# Testing
+# =========================
+coverage/
+.nyc_output/
+
+# =========================
+# Vite
+# =========================
+vite.svg
+
+# =========================
+# TypeScript
+# =========================
+*.tsbuildinfo
+
+# =========================
+# Python (if used)
+# =========================
+__pycache__/
+*.pyc
+venv/
+.envrc
+
+# =========================
+# Java
+# =========================
+*.class
+*.jar
+*.war
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+
+# =========================
+# Firebase
+# =========================
+.firebase/
+
+# =========================
+# Railway / Vercel / Netlify
+# =========================
+.railway/
+.vercel/
+.netlify/
+
+# =========================
+# Miscellaneous
+# =========================
+*.zip
+*.tar.gz
+*.rar

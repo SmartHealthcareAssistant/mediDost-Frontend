@@ -1,134 +1,141 @@
-# 🏥 MediDost Frontend
+# MediDost Frontend
 
-MediDost is a modern healthcare web application designed to simplify online medical services for patients, doctors, and pharmacies.  
-This frontend application provides a responsive and user-friendly interface for booking appointments, managing profiles, ordering medicines, and accessing healthcare services online.
+Frontend application for the MediDost healthcare platform.
 
----
+MediDost is a healthcare management system built to connect patients, doctors, pharmacies, and administrators through a single digital platform. The frontend provides interfaces for appointment booking, medicine ordering, authentication, profile management, and healthcare assistance services.
 
-# 🚀 Features
-
-## 👤 Patient Module
-- Patient Registration & Login
-- Secure JWT Authentication
-- Book Doctor Appointments
-- View Available Doctors
-- Medicine Ordering System
-- Profile Management
-- Appointment History
+The application is built with React and Vite and communicates with the MediDost backend through REST APIs. Real-time features are handled using Socket.IO.
 
 ---
 
-## 🩺 Doctor Module
-- Doctor Registration & Login
-- Manage Availability
-- View Patient Appointments
-- Update Doctor Profile
+## Live Demo
+
+Frontend: https://your-frontend.vercel.app
+
+Backend API: https://your-backend.onrender.com
 
 ---
 
-## 💊 Pharmacy Module
-- Pharmacy Registration & Login
-- Manage Medicines
-- Receive Orders
-- Update Pharmacy Information
+## Stack
 
----
+### Frontend
 
-## 🤖 AI Chatbot
-- Smart healthcare chatbot support
-- Doctor suggestion based on symptoms
-- Interactive healthcare assistance
-
----
-
-## 🔒 Security Features
-- JWT Authentication
-- Protected Routes
-- Password Validation
-- Secure API Communication
-
----
-
-## 🎨 UI Features
-- Fully Responsive Design
-- Modern User Interface
-- Mobile Friendly Layout
-- Smooth Navigation
-- Interactive Components
-
----
-
-# 🛠️ Tech Stack
-
-## Frontend
 - React.js
 - Vite
+- Tailwind CSS
 - React Router DOM
 - Axios
-- Tailwind CSS
 - Socket.IO Client
 
----
+### Backend
 
-## Backend
 - Node.js
 - Express.js
 - MongoDB
+- JWT Authentication
 
 ---
 
-# 📂 Project Structure
+## Features
+
+### Patient Module
+
+- Patient registration & login
+- Doctor search and appointment booking
+- Medicine ordering
+- Appointment history
+- Prescription upload
+- Profile management
+
+### Doctor Module
+
+- Doctor authentication
+- Appointment management
+- Availability scheduling
+- Patient information access
+
+### Pharmacy Module
+
+- Pharmacy registration & login
+- Inventory management
+- Medicine order handling
+- Pharmacy profile management
+
+### Platform Features
+
+- JWT authentication
+- Protected routes
+- AI chatbot integration
+- Responsive UI
+- Real-time updates using Socket.IO
+- Secure API communication
+
+---
+
+## Project Structure
 
 ```bash
-MEDIDOST-FRONTED/
+MEDIDOST-FRONTEND/
 │
 ├── public/
-│   └── vite.png
 │
 ├── src/
-│   ├── assets/                  # Images, logos, icons
-│   ├── Chatbot/                 # AI chatbot components
-│   ├── DoctorComponents/        # Doctor related pages/components
-│   ├── MainPageComponents/      # Landing/Home page components
-│   ├── PatientComponents/       # Patient related components
-│   ├── PharmacyComponents/      # Pharmacy related components
-│   ├── App.css
-│   ├── App.jsx                  # Main application component
-│   ├── index.css
-│   ├── main.jsx                 # React entry point
-│   └── socket.js                # Socket connection setup
+│   ├── assets/                    # Images, logos, icons
+│   ├── Chatbot/                   # AI chatbot components
+│   ├── DoctorComponents/          # Doctor related components
+│   ├── MainPageComponents/        # Landing page components
+│   ├── PatientComponents/         # Patient related components
+│   ├── PharmacyComponents/        # Pharmacy related components
+│   ├── App.jsx                    # Main application component
+│   ├── main.jsx                   # React entry point
+│   └── socket.js                  # Socket.IO configuration
 │
-├── .env                         # Environment variables
+├── .env.example
 ├── .gitignore
-├── eslint.config.js
-├── index.html
-├── package-lock.json
 ├── package.json
-├── README.md
-└── vite.config.js
+├── vite.config.js
+└── README.md
 ```
 
 ---
 
-# ⚙️ Installation & Setup
+## Architecture Overview
 
-## 1️⃣ Clone Repository
+```text
+Frontend (React + Vite)
+        ↓
+REST API Communication
+        ↓
+Backend Server (Node.js + Express)
+        ↓
+MongoDB Database
+```
+
+---
+
+## Screenshot
+
+### Home Page
+
+![MediDost Home Page](./src/assets/TopHeroSectionImg.png)
+
+---
+
+## Getting Started
+
+Clone the repository:
 
 ```bash
-git clone https://github.com/SmartHealthcareAssistant/mediDost-Fronted.git
+git clone https://github.com/SmartHealthcareAssistant/mediDost-Frontend.git
 ```
 
----
-
-## 2️⃣ Navigate to Project Directory
+Navigate to the project directory:
 
 ```bash
-cd medidost-frontend
+cd mediDost-Frontend
 ```
 
----
-
-## 3️⃣ Install Dependencies
+Install dependencies:
 
 ```bash
 npm install
@@ -136,94 +143,142 @@ npm install
 
 ---
 
-## 4️⃣ Setup Environment Variables
+## Environment Variables
 
 Create a `.env` file in the root directory.
+
+Example:
 
 ```env
 VITE_API_URL=http://localhost:5000
 ```
 
+Production example:
+
+```env
+VITE_API_URL=https://your-backend.onrender.com
+```
+
 ---
 
-## 5️⃣ Run Development Server
+## .env.example
+
+```env
+VITE_API_URL=
+```
+
+---
+
+## Running the Application
+
+Start development server:
 
 ```bash
 npm run dev
 ```
 
+Build for production:
+
+```bash
+npm run build
+```
+
+Preview production build:
+
+```bash
+npm run preview
+```
+
 ---
 
-# 🌐 API Integration
+## API Integration
 
 The frontend communicates with the backend using REST APIs.
 
-Example:
+Example request:
 
 ```js
 axios.get(`${import.meta.env.VITE_API_URL}/api/patient/profile`)
 ```
 
+The API base URL is managed through environment variables for local and production environments.
+
 ---
 
-# 📱 Responsive Design
+## Authentication
 
-MediDost frontend is optimized for:
+Authentication is implemented using JWT tokens with protected routes and role-based access handling.
+
+---
+
+## Real-Time Features
+
+Socket.IO is used for:
+
+- Instant updates
+- Notifications
+- Live communication support
+
+---
+
+## Responsive Design
+
+The UI is designed with a mobile-first approach using Tailwind CSS and supports:
 
 - Desktop
 - Tablet
-- Mobile Devices
+- Mobile devices
 
 ---
 
-# 🔐 Authentication
+## Deployment
 
-Authentication is handled using:
-
-- JWT Tokens
-- Local Storage
-- Protected Routes
-
----
-
-# 🚀 Deployment
-
-## Frontend Deployment
-- Vercel
-
-## Backend Deployment
-- Render
+| Service | Platform |
+|---|---|
+| Frontend | Vercel |
+| Backend | Render |
+| Database | MongoDB Atlas |
 
 ---
 
-# 🧪 Future Improvements and add on
+## Related Applications
 
-- Online Video Consultation
-- AI-based Doctor Recommendation
-- Razorpay Payment Integration
-- Real-time Chat System
-- Push Notifications
-- Medical Report Upload
-- Admin Dashboard
+| Application | Description |
+|---|---|
+| MediDost Backend | Backend REST API service |
+| MediDost Admin Portal | Admin dashboard application |
 
 ---
 
-# 👨‍💻 Developed By
+## Roadmap
 
-## Krishna Singh
-## Aryan Gupta
-## Isha Gupta
-## Divyansh Yadav
+Planned improvements:
 
-
----
-
-# 📄 License
-
-This project is developed for educational and learning purposes.
+- Video consultation support
+- Razorpay payment integration
+- Push notifications
+- Real-time chat system
+- Medical report management
+- AI-based doctor recommendation
+- E-prescription system
 
 ---
 
-# ⭐ Support
+## Version
 
-If you like this project, give it a ⭐ on GitHub.
+v1.0.0
+
+---
+
+## Contributors
+
+- Krishna Singh
+- Aryan Gupta
+- Isha Gupta
+- Divyansh Yadav
+
+---
+
+## License
+
+MIT License
