@@ -54,7 +54,7 @@ const FindDoctor = () => {
       if (specialization) params.specialization = specialization;
 
       const { data } = await axios.get(
-        "http://localhost:5000/api/doctor/search",
+        "https://medidost-backend.onrender.com/api/doctor/search",
         { params }
       );
 
@@ -144,7 +144,7 @@ const handleBookClick = () => {
             <img
 src={
   doc.image?.startsWith("/uploads")
-    ? `http://localhost:5000${doc.image}`
+    ? `https://medidost-backend.onrender.com${doc.image}`
     : doc.image || "https://via.placeholder.com/400x250?text=Doctor"
 }
               alt={doc.name}

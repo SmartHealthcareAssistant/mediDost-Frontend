@@ -135,7 +135,7 @@ const CompleteProfile = () => {
     Object.keys(files).forEach((k) => files[k] && formData.append(k, files[k]));
 
     // Use the corrected URL from the previous step verification
-    const url = `http://localhost:5000/api/doctor/complete-profile/${doctorId}`; 
+    const url = `https://medidost-backend.onrender.com/api/doctor/complete-profile/${doctorId}`; 
     
     try {
       setLoading(true);

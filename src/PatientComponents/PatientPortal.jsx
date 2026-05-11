@@ -6,7 +6,7 @@ import logo from "../../src/assets/logo/image.png"
 import { io } from "socket.io-client";
 
 /* ---------------- CONSTANTS & HELPERS ---------------- */
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://medidost-backend.onrender.com/api";
 const authHeaders = () => {
   const t = localStorage.getItem("token");
   return t ? { Authorization: `Bearer ${t}` } : {};
@@ -155,7 +155,7 @@ const [selectedSlot, setSelectedSlot] = useState(null);
 
 
   useEffect(() => {
-  const s = io("http://localhost:5000");
+  const s = io("https://medidost-backend.onrender.com");
   setSocket(s);
 
   return () => s.disconnect();
@@ -856,7 +856,7 @@ text-base sm:text-lg md:text-xl lg:text-2xl
         {p.files.map((f, i) => (
           <a
             key={i}
-            href={`http://localhost:5000${f}`}
+            href={`https://medidost-backend.onrender.com${f}`}
             target="_blank"
             rel="noreferrer"
             className="text-blue-600 underline block"
@@ -925,7 +925,7 @@ text-base sm:text-lg md:text-xl lg:text-2xl
                      <img
   src={
     d.image
-      ? `http://localhost:5000${d.image}`
+      ? `https://medidost-backend.onrender.com${d.image}`
       : "https://via.placeholder.com/150"
   }
   alt={d.name}

@@ -43,7 +43,7 @@ const Register = () => {
 
     try {
       setOtpLoading(true);
-      const res = await fetch("http://localhost:5000/send-otp", {
+      const res = await fetch("https://medidost-backend.onrender.com/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email.trim().toLowerCase() }),
@@ -69,7 +69,7 @@ const Register = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/verify-otp", {
+      const res = await fetch("https://medidost-backend.onrender.com/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -133,7 +133,7 @@ const Register = () => {
 
     try {
       setIsSubmitting(true);
-      const res = await fetch(`http://localhost:5000/api/${role}/register`, {
+      const res = await fetch(`https://medidost-backend.onrender.com/api/${role}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

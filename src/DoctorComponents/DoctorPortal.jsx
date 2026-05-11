@@ -5,8 +5,8 @@ import { io } from "socket.io-client";
 import toast from "react-hot-toast";
 
 /* ---------------- CONSTANTS & HELPERS ---------------- */
-const API_BASE = "http://localhost:5000/api";
-const SOCKET_BASE = "http://localhost:5000";
+const API_BASE = "https://medidost-backend.onrender.com/api";
+const SOCKET_BASE = "https://medidost-backend.onrender.com";
 
 // Headers for authenticated API requests
 const authHeaders = () => {
@@ -736,7 +736,7 @@ const ReviewsView = () => {
     const fetchReviews = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/doctor/reviews",
+          "https://medidost-backend.onrender.com/api/doctor/reviews",
           { headers: authHeaders() }
         );
 

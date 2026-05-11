@@ -10,7 +10,7 @@ export default function Profile({ profile, setProfile, doctorId }) {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/doctor/${doctorId}`, {
+      const res = await fetch(`https://medidost-backend.onrender.com/api/doctor/${doctorId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

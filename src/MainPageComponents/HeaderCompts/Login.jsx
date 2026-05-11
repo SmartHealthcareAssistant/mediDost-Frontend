@@ -2,7 +2,7 @@ import React, { useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 
 // API Constants (Assuming these are defined elsewhere)
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://medidost-backend.onrender.com/api";
 
 // Mock Auth Hook (assuming your real hook handles global state and navigation logic)
 const useAuth = () => {
@@ -51,7 +51,7 @@ const [timer, setTimer] = useState(0);
     
 
     try {
-      const res = await fetch(`http://localhost:5000/api/${role}/login`, {
+      const res = await fetch(`https://medidost-backend.onrender.com/api/${role}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -102,7 +102,7 @@ localStorage.setItem("pharmacyVerified", String(data.verified));
   };
 
   const handleSendResetOtp = async () => {
-  const res = await fetch("http://localhost:5000/send-reset-otp", {
+  const res = await fetch("https://medidost-backend.onrender.com/send-reset-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: resetEmail }),
@@ -117,7 +117,7 @@ localStorage.setItem("pharmacyVerified", String(data.verified));
 const handleVerifyResetOtp = async () => {
   const enteredOtp = otp.join("");
 
-  const res = await fetch("http://localhost:5000/verify-reset-otp", {
+  const res = await fetch("https://medidost-backend.onrender.com/verify-reset-otp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: resetEmail, otp: enteredOtp }),
@@ -127,7 +127,7 @@ const handleVerifyResetOtp = async () => {
 };
 
 const handleResetPassword = async () => {
-  const res = await fetch("http://localhost:5000/reset-password", {
+  const res = await fetch("https://medidost-backend.onrender.com/reset-password", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

@@ -50,7 +50,7 @@ export default function ChatBot() {
   // Helper function to get a new session ID
   const fetchNewSession = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/session");
+      const response = await axios.get("https://medidost-backend.onrender.com/api/session");
       setSessionId(response.data.sessionId);
     } catch (error) {
       // Use console.warn instead of error to avoid alarming logs
@@ -120,7 +120,7 @@ export default function ChatBot() {
 
     try {
       // 2. Send to Backend
-      const response = await axios.post("http://localhost:5000/api/chat", {
+      const response = await axios.post("https://medidost-backend.onrender.com/api/chat", {
         message: text,
         sessionId,
       });

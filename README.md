@@ -12,7 +12,7 @@ The application is built with React and Vite and communicates with the MediDost 
 
 Frontend: https://your-frontend.vercel.app
 
-Backend API: https://your-backend.onrender.com
+Backend API: https://medidost-backend.onrender.com
 
 ---
 
@@ -150,13 +150,13 @@ Create a `.env` file in the root directory.
 Example:
 
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=https://medidost-backend.onrender.com
 ```
 
 Production example:
 
 ```env
-VITE_API_URL=https://your-backend.onrender.com
+VITE_API_URL=https://medidost-backend.onrender.com
 ```
 
 ---

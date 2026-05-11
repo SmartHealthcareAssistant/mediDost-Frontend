@@ -7,7 +7,7 @@ export default function Patients({ patients }) {
   useEffect(() => {
     const fetchPrescriptions = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/prescriptions");
+        const res = await fetch("https://medidost-backend.onrender.com/api/prescriptions");
         const data = await res.json();
         setPrescriptions(data);
       } catch (error) {

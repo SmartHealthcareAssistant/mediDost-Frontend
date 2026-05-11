@@ -19,7 +19,7 @@ const PharmacyPendingVerificationPage = () => {
   const [status, setStatus] = useState("Pending");
 
   const navigate = useNavigate();
-  const API_URL = "http://localhost:5000";
+  const API_URL = "https://medidost-backend.onrender.com";
 
   // ✅ Logout
   const handleLogout = () => {
