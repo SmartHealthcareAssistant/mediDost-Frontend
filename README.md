@@ -117,7 +117,7 @@ MongoDB Database
 
 ### Home Page
 
-![MediDost Home Page](./src/assets/TopHeroSectionImg.png)
+![MediDost Home Page](./src/assets/Images/TopHeroSectionImg.png)
 
 ---
 
